@@ -18,14 +18,17 @@ const Proposals = () => {
 
     const fileInputRef = useRef(null);
 
-    const handleUploadClick = () => {
+    const uploadTimeoutRef = useRef(null);
+
+    const handleUploadClick = (e) => {
+        e.stopPropagation();
         fileInputRef.current?.click();
     };
 
     const processFileInput = (file) => {
         if(!file) return;
         setIsUploading(true);
-        setTimeout(() => {
+        uploadTimeoutRef.current = setTimeout(() => {
             setIsUploading(false);
             setIsModalOpen(false);
             navigate('/proposals/compare/2'); // Navigate to a mock comparison view
@@ -43,6 +46,13 @@ const Proposals = () => {
 
     const handleDragOver = (e) => {
         e.preventDefault();
+    };
+
+    const handleCancel = (e) => {
+        e.stopPropagation(); 
+        if (uploadTimeoutRef.current) clearTimeout(uploadTimeoutRef.current);
+        setIsModalOpen(false); 
+        setIsUploading(false);
     };
 
     const handleProposalClick = (id) => {
@@ -76,7 +86,6 @@ const Proposals = () => {
                         <h2 className="text-h2 mb-4">Upload Proposal</h2>
                         <div
                             className="dropzone"
-                            onClick={handleUploadClick}
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
                         >
@@ -88,8 +97,12 @@ const Proposals = () => {
                                 accept=".pdf,.docx"
                             />
                             <Upload size={48} className="text-muted mb-4" />
-                            <h3 className="text-h3">Click or drag & drop to upload</h3>
-                            <p className="text-muted">Support PDF, DOCX (Max 20MB)</p>
+                            <h3 className="text-h3">Kéo thả file vào đây</h3>
+                            <p className="text-muted mb-4">Hoặc</p>
+                            <button className="btn btn-primary" onClick={handleUploadClick}>
+                                📁 Chọn file từ máy tính
+                            </button>
+                            <p className="text-muted mt-4 mt-2" style={{ fontSize: '0.8rem' }}>Hỗ trợ PDF, DOCX (Max 20MB)</p>
 
                             {isUploading && (
                                 <div className="uploading-state mt-4">
@@ -101,8 +114,7 @@ const Proposals = () => {
                         <div className="modal-actions mt-6">
                             <button
                                 className="btn btn-ghost"
-                                onClick={(e) => { e.stopPropagation(); setIsModalOpen(false); setIsUploading(false); }}
-                                disabled={isUploading}
+                                onClick={handleCancel}
                             >
                                 Cancel
                             </button>
