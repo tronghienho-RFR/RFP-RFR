@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, FileText, AlertCircle, CheckCircle2, Search, Filter, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,14 +16,33 @@ const Proposals = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
+    const fileInputRef = useRef(null);
+
     const handleUploadClick = () => {
-        // Simulate upload process
+        fileInputRef.current?.click();
+    };
+
+    const processFileInput = (file) => {
+        if(!file) return;
         setIsUploading(true);
         setTimeout(() => {
             setIsUploading(false);
             setIsModalOpen(false);
             navigate('/proposals/compare/2'); // Navigate to a mock comparison view
         }, 1500);
+    };
+
+    const handleFileChange = (e) => {
+        processFileInput(e.target.files[0]);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        processFileInput(e.dataTransfer.files[0]);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
     };
 
     const handleProposalClick = (id) => {
@@ -58,7 +77,16 @@ const Proposals = () => {
                         <div
                             className="dropzone"
                             onClick={handleUploadClick}
+                            onDrop={handleDrop}
+                            onDragOver={handleDragOver}
                         >
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                style={{ display: 'none' }} 
+                                onChange={handleFileChange}
+                                accept=".pdf,.docx"
+                            />
                             <Upload size={48} className="text-muted mb-4" />
                             <h3 className="text-h3">Click or drag & drop to upload</h3>
                             <p className="text-muted">Support PDF, DOCX (Max 20MB)</p>
