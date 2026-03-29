@@ -1,0 +1,195 @@
+.chat-widget {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--color-surface);
+}
+
+.chat-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-success);
+    box-shadow: 0 0 0 3px var(--color-success-bg);
+}
+
+.chat-title h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    background-color: var(--color-surface-hover);
+}
+
+.message-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 85%;
+}
+
+.message-wrapper.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+}
+
+.message-avatar.ai {
+    background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+}
+
+.message-avatar.user {
+    background-color: var(--color-text-muted);
+}
+
+.message-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: var(--shadow-sm);
+}
+
+.message-bubble.ai {
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    border-top-left-radius: 0;
+}
+
+.message-bubble.user {
+    background-color: var(--color-primary);
+    color: white;
+    border-top-right-radius: 0;
+}
+
+.chat-input-area {
+    padding: 1.25rem;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+}
+
+.suggestion-chips {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.chip {
+    white-space: nowrap;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.chip:hover {
+    background-color: var(--color-primary-hover);
+    color: white;
+    border-color: var(--color-primary-hover);
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    padding: 0.5rem;
+    transition: border-color var(--transition-fast);
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+}
+
+.input-wrapper input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    color: var(--color-text-main);
+}
+
+.input-wrapper input:focus {
+    outline: none;
+}
+
+.btn-icon {
+    color: var(--color-text-muted);
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-main);
+}
+
+.btn-send {
+    background-color: var(--color-primary);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast), transform 0.1s;
+}
+
+.btn-send:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+}
+
+.btn-send:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.btn-send:disabled {
+    background-color: var(--color-border);
+    cursor: not-allowed;
+    opacity: 0.7;
+}

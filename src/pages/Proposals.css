@@ -1,0 +1,192 @@
+.proposals-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 100%;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.proposals-content {
+    flex: 1;
+}
+
+.proposals-list-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+}
+
+.list-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    max-width: 400px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface-hover);
+}
+
+.search-bar input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    color: var(--color-text-main);
+}
+
+.search-bar input:focus {
+    outline: none;
+}
+
+.proposals-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.proposal-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--transition-fast);
+    cursor: pointer;
+}
+
+.proposal-item:last-child {
+    border-bottom: none;
+}
+
+.proposal-item:hover {
+    background-color: var(--color-surface-hover);
+}
+
+.proposal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-primary {
+    color: var(--color-primary);
+}
+
+.proposal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.proposal-name {
+    font-weight: 600;
+    color: var(--color-text-main);
+    font-size: 1.1rem;
+}
+
+.proposal-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.dot {
+    font-size: 0.5rem;
+}
+
+.proposal-status {
+    display: flex;
+    align-items: center;
+}
+
+.mr-1 {
+    margin-right: 0.25rem;
+}
+
+/* Upload Modal */
+.upload-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(4px);
+}
+
+.upload-modal {
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+}
+
+.dropzone {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--color-surface-hover);
+    transition: all var(--transition-fast);
+}
+
+.dropzone:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(79, 70, 229, 0.05);
+}
+
+.uploading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-primary);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(79, 70, 229, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+}
