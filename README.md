@@ -82,6 +82,8 @@ Bạn có 2 cách đơn giản:
 
 > Lưu ý: hệ thống đọc tự động tốt nhất với `.docx` và `.txt`. Với file `.doc` (Word cũ), vui lòng mở Word và **Save As `.docx`** rồi upload lại.
 
+- File bước 2 có thể ở dạng danh sách gạch đầu dòng (`- Tên dự án ...`), hệ thống sẽ tự đưa tên vào dropdown chọn nhanh.
+
 ## Dùng màn hình CV Updater
 1. Điền thông tin chung + dán CV cũ.
 2. Dán mẫu dự án chuẩn của công ty.

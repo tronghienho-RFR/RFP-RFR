@@ -145,6 +145,25 @@ const parseProjectsFromText = (text) => {
             return;
         }
 
+        if (/^[-•]\s+/.test(line)) {
+            const bulletText = line.replace(/^[-•]\s+/, '').trim();
+
+            if (!bulletText) return;
+
+            if (/(with\s+scale|gfa|area\s+land|floors?|basements?|renovation)/i.test(bulletText)) {
+                const mainName = bulletText.split(/\s+(with|in)\s+/i)[0]?.trim() || bulletText;
+                pushCurrent();
+                current = { ...emptyProject, name: mainName, description: bulletText };
+                pushCurrent();
+                return;
+            }
+
+            pushCurrent();
+            current = { ...emptyProject, name: bulletText };
+            pushCurrent();
+            return;
+        }
+
         if (!current) return;
 
         if (/^(quy mô|scale)\s*[:\-]/i.test(line)) {
