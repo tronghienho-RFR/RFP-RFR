@@ -12,6 +12,107 @@ const emptyProject = {
     result: '',
 };
 
+
+const readUInt16 = (view, offset) => view.getUint16(offset, true);
+const readUInt32 = (view, offset) => view.getUint32(offset, true);
+
+const decodeWordXml = (xmlText) => {
+    return xmlText
+        .replace(/<w:tab\/?\s*>/g, '\t')
+        .replace(/<w:br\/?\s*>/g, '\n')
+        .replace(/<w:p[^>]*>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+};
+
+const inflateRaw = async (bytes) => {
+    if (typeof DecompressionStream === 'undefined') {
+        throw new Error('DECOMPRESSION_UNSUPPORTED');
+    }
+
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    const response = new Response(stream);
+    return new Uint8Array(await response.arrayBuffer());
+};
+
+const extractDocxText = async (arrayBuffer) => {
+    const bytes = new Uint8Array(arrayBuffer);
+    const view = new DataView(arrayBuffer);
+
+    let eocdOffset = -1;
+    for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i -= 1) {
+        if (readUInt32(view, i) === 0x06054b50) {
+            eocdOffset = i;
+            break;
+        }
+    }
+
+    if (eocdOffset < 0) {
+        throw new Error('DOCX_INVALID_ZIP');
+    }
+
+    const centralDirectoryOffset = readUInt32(view, eocdOffset + 16);
+    const totalEntries = readUInt16(view, eocdOffset + 10);
+
+    let pointer = centralDirectoryOffset;
+    let documentEntry = null;
+
+    for (let i = 0; i < totalEntries; i += 1) {
+        if (readUInt32(view, pointer) !== 0x02014b50) {
+            throw new Error('DOCX_CENTRAL_DIRECTORY_ERROR');
+        }
+
+        const compressionMethod = readUInt16(view, pointer + 10);
+        const compressedSize = readUInt32(view, pointer + 20);
+        const fileNameLength = readUInt16(view, pointer + 28);
+        const extraLength = readUInt16(view, pointer + 30);
+        const commentLength = readUInt16(view, pointer + 32);
+        const localHeaderOffset = readUInt32(view, pointer + 42);
+
+        const fileNameBytes = bytes.slice(pointer + 46, pointer + 46 + fileNameLength);
+        const fileName = new TextDecoder('utf-8').decode(fileNameBytes);
+
+        if (fileName === 'word/document.xml') {
+            documentEntry = { compressionMethod, compressedSize, localHeaderOffset };
+            break;
+        }
+
+        pointer += 46 + fileNameLength + extraLength + commentLength;
+    }
+
+    if (!documentEntry) {
+        throw new Error('DOCX_DOCUMENT_XML_NOT_FOUND');
+    }
+
+    const localOffset = documentEntry.localHeaderOffset;
+    if (readUInt32(view, localOffset) !== 0x04034b50) {
+        throw new Error('DOCX_LOCAL_HEADER_ERROR');
+    }
+
+    const fileNameLength = readUInt16(view, localOffset + 26);
+    const extraLength = readUInt16(view, localOffset + 28);
+    const dataOffset = localOffset + 30 + fileNameLength + extraLength;
+    const compressedData = bytes.slice(dataOffset, dataOffset + documentEntry.compressedSize);
+
+    let xmlBytes;
+    if (documentEntry.compressionMethod === 0) {
+        xmlBytes = compressedData;
+    } else if (documentEntry.compressionMethod === 8) {
+        xmlBytes = await inflateRaw(compressedData);
+    } else {
+        throw new Error('DOCX_COMPRESSION_UNSUPPORTED');
+    }
+
+    const xmlText = new TextDecoder('utf-8').decode(xmlBytes);
+    return decodeWordXml(xmlText);
+};
+
 const parseProjectsFromText = (text) => {
     if (!text) return [];
 
@@ -32,8 +133,6 @@ const parseProjectsFromText = (text) => {
     };
 
     lines.forEach((line) => {
-        const normalized = line.toLowerCase();
-
         if (/^(tên dự án|project name)\s*[:\-]/i.test(line)) {
             pushCurrent();
             current = { ...emptyProject, name: line.split(/[:\-]/).slice(1).join(':').trim() };
@@ -116,8 +215,13 @@ const CVUpdater = () => {
             return file.text();
         }
 
-        if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
-            throw new Error('DOC_UPLOAD_UNSUPPORTED');
+        if (fileName.endsWith('.docx')) {
+            const buffer = await file.arrayBuffer();
+            return extractDocxText(buffer);
+        }
+
+        if (fileName.endsWith('.doc')) {
+            throw new Error('DOC_LEGACY_UNSUPPORTED');
         }
 
         throw new Error('UNSUPPORTED_TYPE');
@@ -139,14 +243,19 @@ const CVUpdater = () => {
                 setProjects(detectedProjects);
             }
         } catch (error) {
-            if (error.message === 'DOC_UPLOAD_UNSUPPORTED') {
-                setErrorMessage('File Word (.doc/.docx) đã upload thành công nhưng trình duyệt chưa đọc trực tiếp được nội dung. Vui lòng mở Word, copy nội dung và dán vào ô bên dưới (hoặc lưu dạng .txt rồi upload).');
+            if (error.message === 'DOC_LEGACY_UNSUPPORTED') {
+                setErrorMessage('File .doc (Word cũ) chưa đọc tự động được. Vui lòng mở file và Save As sang .docx rồi upload lại.');
                 setOldCvText('');
                 setOldCvFileName(file.name);
                 return;
             }
 
-            setErrorMessage('Không đọc được file CV cũ. Vui lòng kiểm tra file và thử lại.');
+            if (error.message === 'DECOMPRESSION_UNSUPPORTED') {
+                setErrorMessage('Trình duyệt hiện tại chưa hỗ trợ giải nén .docx tự động. Vui lòng dùng Chrome/Edge/Safari mới nhất.');
+                return;
+            }
+
+            setErrorMessage('Không đọc được file CV cũ. Vui lòng kiểm tra file Word (.docx) và thử lại.');
         }
     };
 
@@ -162,15 +271,20 @@ const CVUpdater = () => {
             setUpdateDocFileName(file.name);
             setUpdateProjects(parseProjectsFromText(text));
         } catch (error) {
-            if (error.message === 'DOC_UPLOAD_UNSUPPORTED') {
-                setErrorMessage('File Word (.doc/.docx) đã upload thành công nhưng trình duyệt chưa đọc trực tiếp được nội dung. Vui lòng mở Word, copy nội dung và dán vào ô bên dưới (hoặc lưu dạng .txt rồi upload).');
+            if (error.message === 'DOC_LEGACY_UNSUPPORTED') {
+                setErrorMessage('File .doc (Word cũ) chưa đọc tự động được. Vui lòng mở file và Save As sang .docx rồi upload lại.');
                 setUpdateDocText('');
                 setUpdateDocFileName(file.name);
                 setUpdateProjects([]);
                 return;
             }
 
-            setErrorMessage('Không đọc được file cập nhật. Vui lòng kiểm tra file và thử lại.');
+            if (error.message === 'DECOMPRESSION_UNSUPPORTED') {
+                setErrorMessage('Trình duyệt hiện tại chưa hỗ trợ giải nén .docx tự động. Vui lòng dùng Chrome/Edge/Safari mới nhất.');
+                return;
+            }
+
+            setErrorMessage('Không đọc được file cập nhật. Vui lòng kiểm tra file Word (.docx) và thử lại.');
         }
     };
 
@@ -223,8 +337,8 @@ const CVUpdater = () => {
             {errorMessage && <div className="cv-alert">{errorMessage}</div>}
 
             <section className="card cv-card">
-                <h2 className="text-h3">Bước 1 - Upload file CV cũ (.doc/.docx/.txt)</h2>
-                <input type="file" accept=".doc,.docx,.txt" onChange={onUploadOldCv} />
+                <h2 className="text-h3">Bước 1 - Upload file CV cũ (.docx/.txt)</h2>
+                <input type="file" accept=".docx,.txt,.doc" onChange={onUploadOldCv} />
                 <p className="text-muted">File đã chọn: {oldCvFileName || 'Chưa có file'}</p>
                 <textarea
                     rows={8}
@@ -235,8 +349,8 @@ const CVUpdater = () => {
             </section>
 
             <section className="card cv-card">
-                <h2 className="text-h3">Bước 2 - Upload file thông tin cập nhật (.doc/.docx/.txt)</h2>
-                <input type="file" accept=".doc,.docx,.txt" onChange={onUploadUpdateDoc} />
+                <h2 className="text-h3">Bước 2 - Upload file thông tin cập nhật (.docx/.txt)</h2>
+                <input type="file" accept=".docx,.txt,.doc" onChange={onUploadUpdateDoc} />
                 <p className="text-muted">File đã chọn: {updateDocFileName || 'Chưa có file'}</p>
                 <textarea
                     rows={6}
