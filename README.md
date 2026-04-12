@@ -72,6 +72,15 @@ Bạn có 2 cách đơn giản:
 - Build production: `npm run build`
 - Lint: `npm run lint`
 
+
+## Luồng cập nhật CV theo yêu cầu mới
+1. **Bước 1**: Upload file CV cũ (`.doc/.docx/.txt`) làm mẫu RFR.
+2. **Bước 2**: Upload file thông tin cập nhật (`.doc/.docx/.txt`) có tên dự án, quy mô, vai trò...
+3. Hệ thống cho phép bạn thêm dự án từ bước 2 vào CV mới, đồng thời xoá/chỉnh sửa trực tiếp trong danh sách dự án.
+4. Xuất ra file Word CV mới sau cập nhật.
+
+> Lưu ý: hệ thống nhận upload `.doc/.docx/.txt`. Khi trình duyệt không đọc trực tiếp được Word, bạn chỉ cần mở file Word, copy nội dung và dán vào ô văn bản trên màn hình.
+
 ## Dùng màn hình CV Updater
 1. Điền thông tin chung + dán CV cũ.
 2. Dán mẫu dự án chuẩn của công ty.

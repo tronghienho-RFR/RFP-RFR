@@ -8,6 +8,14 @@
     margin-bottom: 0.5rem;
 }
 
+.cv-alert {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+}
+
 .cv-card {
     padding: 1rem;
     display: flex;
@@ -40,6 +48,10 @@
     background: var(--color-surface);
 }
 
+.cv-card input[type='file'] {
+    padding: 0.4rem;
+}
+
 .cv-card input:focus,
 .cv-card textarea:focus {
     outline: 2px solid rgba(79, 70, 229, 0.25);
@@ -48,11 +60,24 @@
 
 .project-header-row,
 .preview-header-row,
-.project-title-row {
+.project-title-row,
+.import-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
+}
+
+.import-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.import-item {
+    border: 1px solid var(--color-border);
+    padding: 0.65rem;
+    border-radius: var(--radius-md);
 }
 
 .project-block {
@@ -76,9 +101,11 @@
 }
 
 @media (max-width: 640px) {
+
     .project-header-row,
     .preview-header-row,
-    .project-title-row {
+    .project-title-row,
+    .import-item {
         flex-direction: column;
         align-items: flex-start;
     }
