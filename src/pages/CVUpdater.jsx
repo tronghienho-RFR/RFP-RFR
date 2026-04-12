@@ -206,6 +206,7 @@ const CVUpdater = () => {
     const [updateDocFileName, setUpdateDocFileName] = useState('');
     const [projects, setProjects] = useState([]);
     const [updateProjects, setUpdateProjects] = useState([]);
+    const [selectedUpdateProjectIndex, setSelectedUpdateProjectIndex] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     const readUploadedText = async (file) => {
@@ -269,13 +270,16 @@ const CVUpdater = () => {
             const text = await readUploadedText(file);
             setUpdateDocText(text);
             setUpdateDocFileName(file.name);
-            setUpdateProjects(parseProjectsFromText(text));
+            const parsedProjects = parseProjectsFromText(text);
+            setUpdateProjects(parsedProjects);
+            setSelectedUpdateProjectIndex(parsedProjects.length ? '0' : '');
         } catch (error) {
             if (error.message === 'DOC_LEGACY_UNSUPPORTED') {
                 setErrorMessage('File .doc (Word cũ) chưa đọc tự động được. Vui lòng mở file và Save As sang .docx rồi upload lại.');
                 setUpdateDocText('');
                 setUpdateDocFileName(file.name);
                 setUpdateProjects([]);
+                setSelectedUpdateProjectIndex('');
                 return;
             }
 
@@ -301,6 +305,16 @@ const CVUpdater = () => {
     const importProjectFromStep2 = (project) => {
         setProjects((prev) => [...prev, { ...project }]);
     };
+
+
+    const selectedUpdateProject = useMemo(() => {
+        if (selectedUpdateProjectIndex === '') return null;
+
+        const index = Number(selectedUpdateProjectIndex);
+        if (Number.isNaN(index) || index < 0 || index >= updateProjects.length) return null;
+
+        return updateProjects[index];
+    }, [selectedUpdateProjectIndex, updateProjects]);
 
     const projectsSection = useMemo(() => toProjectText(projects), [projects]);
     const generatedCv = useMemo(() => mergeProjectsIntoOldCv(oldCvText, projectsSection), [oldCvText, projectsSection]);
@@ -360,19 +374,43 @@ const CVUpdater = () => {
                 />
 
                 {updateProjects.length > 0 && (
-                    <div className="import-list">
-                        <h3>Dự án đọc được từ file bước 2</h3>
-                        {updateProjects.map((project, index) => (
-                            <div key={`${project.name}-${index}`} className="import-item">
+                    <div className="import-list compact-import">
+                        <h3>Chọn nhanh dự án theo tên (từ file bước 2)</h3>
+                        <div className="compact-import-row">
+                            <select
+                                value={selectedUpdateProjectIndex}
+                                onChange={(event) => setSelectedUpdateProjectIndex(event.target.value)}
+                            >
+                                {updateProjects.map((project, index) => (
+                                    <option key={`${project.name}-${index}`} value={String(index)}>
+                                        {project.name || `Dự án ${index + 1}`}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={() => selectedUpdateProject && importProjectFromStep2(selectedUpdateProject)}
+                                disabled={!selectedUpdateProject}
+                            >
+                                Copy toàn bộ vào CV mới
+                            </button>
+                        </div>
+
+                        {selectedUpdateProject && (
+                            <div className="import-item">
                                 <div>
-                                    <strong>{project.name || `Dự án ${index + 1}`}</strong>
-                                    <p className="text-muted">{project.scale || project.description || 'Không có mô tả'}</p>
+                                    <strong>{selectedUpdateProject.name || 'Chưa có tên dự án'}</strong>
+                                    <p className="text-muted">Quy mô: {selectedUpdateProject.scale || '...'}</p>
+                                    <p className="text-muted">Vai trò: {selectedUpdateProject.role || '...'}</p>
+                                    <p className="text-muted">Thời gian: {selectedUpdateProject.period || '...'}</p>
+                                    <p className="text-muted">Mô tả: {selectedUpdateProject.description || '...'}</p>
+                                    <p className="text-muted">Công nghệ/Công cụ: {selectedUpdateProject.tech || '...'}</p>
+                                    <p className="text-muted">Kết quả: {selectedUpdateProject.result || '...'}</p>
                                 </div>
-                                <button className="btn btn-primary" type="button" onClick={() => importProjectFromStep2(project)}>
-                                    Thêm vào CV mới
-                                </button>
                             </div>
-                        ))}
+                        )}
                     </div>
                 )}
             </section>

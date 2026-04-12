@@ -76,8 +76,9 @@ Bạn có 2 cách đơn giản:
 ## Luồng cập nhật CV theo yêu cầu mới
 1. **Bước 1**: Upload file CV cũ (`.docx/.txt`) làm mẫu RFR (file `.doc` cần Save As sang `.docx`).
 2. **Bước 2**: Upload file thông tin cập nhật (`.docx/.txt`) có tên dự án, quy mô, vai trò...
-3. Hệ thống cho phép bạn thêm dự án từ bước 2 vào CV mới, đồng thời xoá/chỉnh sửa trực tiếp trong danh sách dự án.
-4. Xuất ra file Word CV mới sau cập nhật.
+3. Hệ thống cho phép chọn nhanh dự án theo **tên dự án** từ file bước 2, rồi bấm **Copy toàn bộ vào CV mới**.
+4. Sau khi copy, bạn có thể xoá/chỉnh sửa trực tiếp trong danh sách dự án CV mới.
+5. Xuất ra file Word CV mới sau cập nhật (dựa trên CV cũ ở bước 1).
 
 > Lưu ý: hệ thống đọc tự động tốt nhất với `.docx` và `.txt`. Với file `.doc` (Word cũ), vui lòng mở Word và **Save As `.docx`** rồi upload lại.
 
