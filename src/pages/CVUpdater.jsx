@@ -218,6 +218,27 @@ const mergeProjectsIntoOldCv = (oldCvText, projectsSection) => {
     return `${oldCvText}\n\n${projectsSection}`;
 };
 
+
+const dedupeProjectsByName = (projects) => {
+    const seen = new Set();
+    const deduped = [];
+
+    projects.forEach((project) => {
+        const key = (project.name || '').trim().toLowerCase();
+        if (!key) {
+            deduped.push(project);
+            return;
+        }
+
+        if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(project);
+        }
+    });
+
+    return deduped;
+};
+
 const CVUpdater = () => {
     const [oldCvText, setOldCvText] = useState('');
     const [oldCvFileName, setOldCvFileName] = useState('');
@@ -289,9 +310,13 @@ const CVUpdater = () => {
             const text = await readUploadedText(file);
             setUpdateDocText(text);
             setUpdateDocFileName(file.name);
-            const parsedProjects = parseProjectsFromText(text);
+            const parsedProjects = dedupeProjectsByName(parseProjectsFromText(text));
             setUpdateProjects(parsedProjects);
             setSelectedUpdateProjectIndex(parsedProjects.length ? '0' : '');
+
+            if (!parsedProjects.length) {
+                setErrorMessage('Không tìm thấy tên dự án trong file bước 2. Vui lòng kiểm tra định dạng: - Tên dự án hoặc Tên dự án: ...');
+            }
         } catch (error) {
             if (error.message === 'DOC_LEGACY_UNSUPPORTED') {
                 setErrorMessage('File .doc (Word cũ) chưa đọc tự động được. Vui lòng mở file và Save As sang .docx rồi upload lại.');
@@ -391,6 +416,8 @@ const CVUpdater = () => {
                     onChange={(event) => setUpdateDocText(event.target.value)}
                     placeholder="Nội dung file cập nhật sẽ hiển thị tại đây sau khi upload"
                 />
+
+                <p className="text-muted">Số dự án đọc được ở bước 2: <strong>{updateProjects.length}</strong></p>
 
                 {updateProjects.length > 0 && (
                     <div className="import-list compact-import">
