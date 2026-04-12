@@ -6,6 +6,7 @@ import Proposals from './pages/Proposals';
 import Comparison from './pages/Comparison';
 
 import TeamSpace from './pages/TeamSpace';
+import CVUpdater from './pages/CVUpdater';
 
 // Placeholders for other routes
 const Settings = () => <div><h1 className="text-h1">Settings</h1><p>Coming soon...</p></div>;
@@ -19,6 +20,7 @@ function App() {
                     <Route path="proposals" element={<Proposals />} />
                     <Route path="proposals/compare/:id" element={<Comparison />} />
                     <Route path="team" element={<TeamSpace />} />
+                    <Route path="cv-updater" element={<CVUpdater />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
             </Routes>
