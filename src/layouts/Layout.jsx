@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, Users, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, Users, MessageSquare, FilePenLine } from 'lucide-react';
 import './Layout.css';
 
 const Layout = () => {
@@ -10,6 +10,7 @@ const Layout = () => {
         { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
         { path: '/proposals', icon: <FileText size={20} />, label: 'Proposals' },
         { path: '/team', icon: <Users size={20} />, label: 'Team Space' },
+        { path: '/cv-updater', icon: <FilePenLine size={20} />, label: 'CV Updater' },
         { path: '/settings', icon: <Settings size={20} />, label: 'Settings' },
     ];
 
